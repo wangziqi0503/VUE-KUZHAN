@@ -57,7 +57,9 @@ export default {
         },
         news:0,
         status:{action:"default",page:"1",beautyPage:"1"},
-        arrays:[]
+        arrays:[],
+        exposureNum:1
+        
       }
   },
   mounted: function() {
@@ -72,7 +74,7 @@ export default {
   components:{
     Scroll
   },
-  props:['game','listData','fontSize'],
+  props:['game','listData','fontSize','Navbian'],
   methods:{
       transitionEnd() {
           if(this.game.key1===1)this.game.navShow = 1;
@@ -368,25 +370,30 @@ export default {
           });
           done();
       },
-      onSendExposure:function(ele,index){
+      onSendExposure(ele,index){
           //console.log(ele,index)
           var sTop = document.documentElement.scrollTop == 0 ? document.body.scrollTop : document.documentElement.scrollTop; 
           var bottomNum=ele.offsetTop-window.screen.availHeight;//元素顶部到可视范围的距离
           var top=ele.offsetTop;//元素距离文档顶部的距离
-          var Active = document.getElementsByClassName('navActive')[0].innerText
+          var Active = document.getElementsByClassName('navActive')[0].innerText;
+          
           if( bottomNum<sTop&&sTop<top){
               if(this.arrays.length == 0){
-                  this.arrays.push(ele.id)  
-                  console.log(this.arrays)
+                  this.arrays.push(ele.id)
+                  console.log(Active + '1')
               }else{
                   if(in_array(ele.id,this.arrays)){
                       return
                   }else{
+                      
+                      if(this.Navbian.blone == false){
+                          this.exposureNum = 0
+                          this.Navbian.blone = !this.Navbian.blone
+                      } 
                       this.arrays.push(ele.id)
-                      if(Active == '体育') 
-                        console.log(Active)
-                      else
-                        console.log(2)
+                      this.exposureNum ++ 
+                      console.log(Active + this.exposureNum) 
+                      
                   }
               }
           }

@@ -57,7 +57,7 @@
               <div class="navMenu" @click="closeNav" @touchstart="closeNav"></div>
           </div>
       </transition>
-  <router-view :game="game" :getHeight="getHeight" :listData="listData" ref="index" @data = "swipers" :fontSize="fontSize" />
+  <router-view :game="game" :getHeight="getHeight" :listData="listData" ref="index" @data = "swipers" :fontSize="fontSize" :Navbian = "Navbian"/>
 </div>
 </template>
 
@@ -92,7 +92,10 @@ export default {
             navData: [],
             
             swiperData: [],
-            searchData:''
+            searchData:'',
+            Navbian:{
+                blone:true
+            }
         }
     },
     components:{
@@ -130,7 +133,7 @@ export default {
                     data[0].splice(index,1)
                 }
             })
-            console.log(data[0])
+            //console.log(data[0])
 
             this.swiperData = data[0]
         },
@@ -156,7 +159,7 @@ export default {
             });
         },
         changeSwipe() {
-            console.log(1);
+            //console.log(1);
         },
         searchResult(){
             if(!this.$refs.searchInput.value) return
@@ -240,7 +243,9 @@ export default {
             jsonp('http://stadig.ifeng.com/actsta.js?datatype=wap_act&value=kz_'+push+'&uri=http%3A%2F%2Finews.ifeng.com%2F53939506%2Fnews.shtml%3Fch%3Difengweb_2014%23imgnum%3D1&ref=http%3A%2F%2Finews.ifeng.com%2F53939506%2Fnews.shtml%3Fch%3Difengweb_2014%23imgnum%3D1&uid=1508323155475_rfg951400&sid=81A5F57EE82DA9925C9EE026297DC363user69404601&time=1512632458194&ci=%2Fwap%2Fhuandengtu%2F&pt=photo', "", "callback", (data) => {
             });
             this.game.listSelect = index;
-            this.$refs.index.getList('default')
+            this.$refs.index.getList('default');
+            this.exposureNum = 0;
+            this.Navbian.blone = !this.Navbian.blone;
         },
         closeNav() {
             if(this.navOn === 1) {
