@@ -28,8 +28,10 @@
         url = tool.hasSearch(url, data);
         url = tool.hasSearch(url, jsonpData);
         script.src = url;
-        script.attr = "async = false"
+        script.attr = "async = false";
+        script.id = "jsonpid"
         document.body.appendChild(script);
+        //document.body.removeChild(script)
     };
     jsonp.count = 0;
     window.jsonp = jsonp;

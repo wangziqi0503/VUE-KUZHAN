@@ -5,25 +5,26 @@
 				<slot name="pull-refresh">
 					<span class="down-tip">下拉更新</span>
 					<span class="up-tip">松开刷新数据</span>
-					<span class="refresh-tip">加载中……</span>
+					<span class="refresh-tip">加载中...</span>
 				</slot>
 			</header>
 		    <div class="tips" style="display:none">为您推荐{{news}}条更新</div>
+
 			<slot>
 			</slot>
 			<footer class="load-more">
 				<slot name="load-more">
 					<span v-show="downFlag === false">上拉加载更多</span>
-					<span v-show="downFlag === true">加载中……</span>
+					<span v-show="downFlag === true">加载中...</span>
 				</slot>
 			</footer>
 			
-	        <div class="footer" v-if="game.readMode">
-	              <img src="http://p3.ifengimg.com/29b92e35b2b20708/2017/49/footer.6c9374a.png" />
-	              <a href="http://i.ifeng.com/" target="_blank" class="btn">
-	                  <img src="http://p3.ifengimg.com/29b92e35b2b20708/2017/49/footer-btn.8700675.png" />
-	              </a>
-	        </div>
+          <div class="footer" v-if="game.readMode">
+              <img src="http://p3.ifengimg.com/29b92e35b2b20708/2017/49/footer.6c9374a.png" />
+              <a href="http://i.ifeng.com/" target="_blank" class="btn">
+                  <img src="http://p3.ifengimg.com/29b92e35b2b20708/2017/49/footer-btn.8700675.png" />
+              </a>
+          </div>
 		</section>
 	</div>
 </template>
@@ -262,7 +263,7 @@
 				
                 setTimeout(() => {
 					this.$el.querySelector('.tips').style.display = 'none';		
-				}, 800);
+				}, 2000);
 				
 			},
 			infinite() {

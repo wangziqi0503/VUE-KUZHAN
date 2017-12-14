@@ -792,8 +792,6 @@ ifWeather.aqi = {
 }
 export default ifWeather;
 
-
-
 export function in_array(search,array){
   for(var i in array){
       if(array[i]==search){
@@ -802,4 +800,3 @@ export function in_array(search,array){
   }
   return false;
 }
-

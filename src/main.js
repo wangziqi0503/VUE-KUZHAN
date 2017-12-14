@@ -14,7 +14,7 @@ console.log(router)
 
 Vue.use(VueLazyLoad,{
    preload:1.3,//预加载的宽高
-   loading:"http://p0.ifengimg.com/a/2017/ifeng0815/loading-logo2.png",
+   loading:"http://p0.ifengimg.com/29b92e35b2b20708/2017/50/e3e3e3.png",
    //error:"img加载失败时现实的图片的路径",
    attempt:1,//尝试加载的次数
    listenEvents:['scroll'], //你想让vue监听的事件

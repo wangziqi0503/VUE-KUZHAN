@@ -2,29 +2,32 @@
   <div class="hello" :style="{ transform: 'translate3d(0, ' + (1-game.key1)*fontSize*6.8 + 'px, 0)',transitionDuration: game.startY?'0ms':'300ms' }" @transitionend="transitionEnd">
       <Scroll :news="news" :on-refresh="onRefresh" :on-infinite="onInfinite" :dataList="scrollData" :game="game" :offset="fontSize">
           
-          <div v-for="(item,index) in listdata" class="innerBox"  :id="item.documentId" v-if="item.type&&item.thumbnail&&item.thumbnail!=''" v-bind:class="{ pic_text:item.type=='doc' && (item.style && item.style.type!='slides') || item.type=='doc'&&!item.style || item.type == 'topic2',videoList:item.type=='phvideo'|| item.type == 'shortNews',itemsT:(item.style&&item.style.type=='slides')||item.type=='slide',livingList:(item.type=='living' || item.type=='text_live'), flash : item.type == 'flash'}">
+          <div v-for="(item,index) in listdata" class="innerBox" :data-key="item.documentId || item.id" v-if="item.type&&item.thumbnail&&item.thumbnail!=''" v-bind:class="{ pic_text:item.type=='doc' && (item.style && item.style.type!='slides') || item.type=='doc'&&!item.style || item.type == 'topic2' || item.type =='web',videoList:item.type=='phvideo'|| item.type == 'shortNews',itemsT:(item.style&&item.style.type=='slides')||item.type=='slide',livingList:(item.type=='living' || item.type=='text_live'), flash : item.type == 'flash',AutoHeight:item.type == 'shortNews'}">
 
-              <a v-if="item.documentId || item.cid" :href="game.listSelect!=5? item.type =='text_live'?item.link.weburl : item.type=='phvideo'?'http://m.ifeng.com/sfnews?guid='+item.link.url+'&channel='+ listData[game.listSelect].channel:item.type == 'shortNews' ? 'http://share.iclient.ifeng.com/shareNews?ch=qd_sdk_dl1&aid='+item.id:item.documentId.indexOf('cmpp')>-1||item.documentId.indexOf('imcp')>-1?'http://share.iclient.ifeng.com/shareNews?ch=qd_sdk_dl1&aid='+item.documentId : 'http://ifenghuanghao.ifeng.com/'+item.documentId.substring(4)+'/news.shtml':'javascript:void(0)'">
+              <a v-if="item.documentId || item.cid" :href="game.listSelect!=5? item.type =='text_live' || item.type == 'web'?item.link.weburl : item.type=='phvideo'?'http://m.ifeng.com/sfnews?guid='+item.link.url+'&channel='+ listData[game.listSelect].channel:item.type == 'shortNews' ? 'http://share.iclient.ifeng.com/shareNews?ch=qd_sdk_dl1&aid='+item.id:item.documentId.indexOf('cmpp')>-1||item.documentId.indexOf('imcp')>-1?'http://share.iclient.ifeng.com/shareNews?ch=qd_sdk_dl1&aid='+item.documentId : 'http://ifenghuanghao.ifeng.com/'+item.documentId.substring(4)+'/news.shtml':'javascript:void(0)'">
                   <div class="textBox" v-bind:class="{ one:item.title.length<12 }">
-                      <h1>{{ item.title }}</h1>
+
+                      <h1 v-if = "typeof item.likes != 'number'">{{ item.title }}</h1>
                       <div v-if="(item.style&&item.style.type=='normal')|| (item.type=='doc' && item.style && item.style.type!='slides') || item.type=='doc'&&!item.style || (item.type=='topic2' && item.style)">
+                          <span v-if="item.style && item.style.attribute" v-bind:class="{yaowen:item.style.attribute=='要闻',topic:item.style.attribute=='专题',dujia:item.style.attribute=='独家'}"></span>
                           <span v-if="item.source">{{ item.source }}</span>
                           <span v-if="item.comments&&item.comments>0">{{ item.comments }}评</span>
-                          <span v-if="item.updateTime">{{ item.updateTime.substring(5,16) }}</span>
+                          <span v-if="item.updateTime" :style="{display:'none'}">{{ item.updateTime.substring(5,16) }}</span>
                       </div>
                   </div>
                   <div class="imgBox">
-                      <img v-if="!((item.style&&item.style.type=='slides')||item.type=='slide')"  v-lazy="typeof item.likes == 'number' ? getThumbnailUrl(item.thumbnail,'w385_h531'):getThumbnailUrl(item.thumbnail,'w349_h230')" />
+                      <img v-if="!((item.style&&item.style.type=='slides')||item.type=='slide')"  v-lazy="typeof item.likes == 'number' ? getThumbnailUrl(item.thumbnail,'w385_h531'): item.type=='text_live'?getThumbnailUrl(item.thumbnail,'w330_h100') :getThumbnailUrl(item.thumbnail,'w349_h230')" />
                       <img v-if="(item.style&&item.style.type=='slides')||item.type=='slide'" v-for="(imgs,index) in item.style&&item.style.images"  v-lazy="imgs.indexOf('.webp') != -1 ? imgs.replace('.webp','').replace('_webp',''):imgs" />
                       <div v-if="item.type=='living' || item.type=='text_live'" class="l-tip"></div>
                       <div v-if="item.type=='phvideo'" class="v-btn"></div>
                       <div v-if="item.type=='phvideo'" class="v-time" v-html="(Math.floor(item.phvideo.length/60)<10?'0'+Math.floor(item.phvideo.length/60):Math.floor(item.phvideo.length/60))+':'+(item.phvideo.length%60<10?'0'+item.phvideo.length%60:item.phvideo.length%60)"></div>
                   </div>
                   <div class="descBox" v-if="item.type=='phvideo' || item.type=='slide' || (item.style && item.style.type == 'slides') || item.type =='text_live' || item.type =='living' ">
+                      <span v-if="item.style && item.style.attribute" v-bind:class="{yaowen:item.style.attribute=='要闻',topic:item.style.attribute=='专题',dujia:item.style.attribute=='独家'}"></span>
                       <span v-if="(item.type=='living' || item.type=='text_live') && item.liveExt.status==='2'" class="playing">进行中</span>
                       <span v-if="item.source">{{ item.source }}</span>
                       <span v-if="item.comments&&item.comments>0">{{ item.comments }}评</span>
-                      <span v-if="item.updateTime">{{ item.updateTime.substring(5,16) }}</span>
+                      <span v-if="item.updateTime" :style="{display:'none'}">{{ item.updateTime.substring(5,16) }}</span>
                   </div>
               </a>
               <!-- <div v-else class="update">
@@ -41,6 +44,7 @@
 import Scroll from '../components/scroll';
 import jsonp from '../utils/jsonp';
 import {in_array} from '../utils/common';
+
 export default {
   name: 'index',
   data () {
@@ -58,18 +62,22 @@ export default {
         news:0,
         status:{action:"default",page:"1",beautyPage:"1"},
         arrays:[],
-        exposureNum:1
-        
+        exposureNum:1,
+        totalNum:[
+          [],[],[],[],[],[]
+        ],
+        firstSend:true,
+        size:1
       }
   },
   mounted: function() {
+
       this.getList();
       let node = document.getElementsByClassName('innerBox')
-
           for(var i = 0; i < node.length; i++){
-                this.elementVisible(node[i],i)
+                this.onSendExposure(node[i],i)
           }
-      window.addEventListener('scroll', this.handleScroll); 
+      window.addEventListener('scroll', this.handleScroll);
   },
   components:{
     Scroll
@@ -123,6 +131,9 @@ export default {
        url = url.substring(7)
            return url;
       },
+      _raf(e){
+          return window.requestAnimationFrame(e)||window.webkitRequestAnimationFrame(e)||window.mozRequestAnimationFrame(e)||window.oRequestAnimationFrame(e)||window.msRequestAnimationFrame(e)||window.setTimeout(e, 1000 / 60)
+      },
       getList(action) {
         
         if(action == "default"){
@@ -154,8 +165,12 @@ export default {
                   data[0].item.splice(index,1)
                 }
               })
-              this.listdata = data[0].item
-              this.$emit('data',data[1].item)
+                let _this = this;
+                this.listdata = [];
+                this._raf(function () {
+                    _this.listdata = data[0].item
+                    _this.$emit('data',data[1].item)
+                });
             }
           }else{
             if(data.count>0){
@@ -164,12 +179,20 @@ export default {
                   data.item.splice(index,1)
                 }
               })
-              this.listdata = data.item;
+                let _this = this;
+                this.listdata = [];
+                this._raf(function () {
+                    _this.listdata = data.item;
+                });
             }else{
               if(data.body && data.body.length == 0){
                 this.getList("default")
               }else{
-                this.listdata = data.body;
+                  let _this = this;
+                  this.listdata = [];
+                  this._raf(function () {
+                      _this.listdata = data.body;
+                  });
               }
             }
           }
@@ -302,7 +325,7 @@ export default {
         
       },
       onInfinite(done) {
-          
+          //console.log('向下加载')
           this.status.action = "up"
           this.status.page++
           this.status.beautyPage++
@@ -323,7 +346,7 @@ export default {
                 if(Array.isArray(data.body)){
                   
                   if(data.body.length == 0){
-                   
+                    console.log('数据为空')
                     this.onInfinite(done)
                     //this.$el.querySelector('.load-more').style.display = 'none';
                     //return false
@@ -337,7 +360,7 @@ export default {
                 }
               }else{
                 if(Array.isArray(data)){
-                
+                  //console.log('数组')
                   if(data.length == 0){
                     
                     this.getList('up')
@@ -351,7 +374,7 @@ export default {
                     })
                   }
                 }else{
-                  
+                  console.log('非数组')
                   if(data.count>0){
                     for(let i = 0; i < data.item.length; i++) {
                       if(data.item[i].type == "advert"){
@@ -370,41 +393,65 @@ export default {
           });
           done();
       },
-      onSendExposure(ele,index){
+      onSendExposure(){
           //console.log(ele,index)
-          var sTop = document.documentElement.scrollTop == 0 ? document.body.scrollTop : document.documentElement.scrollTop; 
-          var bottomNum=ele.offsetTop-window.screen.availHeight;//元素顶部到可视范围的距离
-          var top=ele.offsetTop;//元素距离文档顶部的距离
+          var sTop = document.body.scrollTop||document.documentElement.scrollTop;; 
+          var viewHight = document.documentElement.clientHeight;
           var Active = document.getElementsByClassName('navActive')[0].innerText;
-          
-          if( bottomNum<sTop&&sTop<top){
-              if(this.arrays.length == 0){
-                  this.arrays.push(ele.id)
-                  console.log(Active + '1')
-              }else{
-                  if(in_array(ele.id,this.arrays)){
-                      return
-                  }else{
-                      
-                      if(this.Navbian.blone == false){
-                          this.exposureNum = 0
-                          this.Navbian.blone = !this.Navbian.blone
-                      } 
-                      this.arrays.push(ele.id)
-                      this.exposureNum ++ 
-                      console.log(Active + this.exposureNum) 
-                      
-                  }
-              }
+
+          if(sTop > viewHight + viewHight/2 ){
+            this.firstSend = !this.firstSend
+          }else{
+            this.firstSend == true;
           }
+
+          //console.log('第一次发送数据!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+
+
+          if(this.firstSend == false){
+             //console.log('开始第二次发送')
+             //console.log('stop=====' + parseInt(sTop - (viewHight + viewHight/2)))
+             var newStop = parseInt(sTop - (viewHight + viewHight/2))
+             
+             //console.log(newStop,viewHight,newStop % viewHight)
+
+             if(!this.Navbian.blone){//判断是否切换频道
+
+                    if(this.totalNum[this.game.listSelect].length != 0){//判断之前此频道是否发过曝光，避免重复发送
+                       this.size = this.totalNum[this.game.listSelect].length + 1
+                    }else{
+                       this.size = 1
+                    }
+                    
+                    this.Navbian.blone = !this.Navbian.blone
+
+             }
+
+             
+             //曝光发送
+             if(newStop > viewHight * this.size){//判断曝光发送区域
+                  //console.log(`${this.Navbian.name}${this.size}`)
+                  jsonp(`http://stadig.ifeng.com/actsta.js?datatype=wap_act&value=${this.Navbian.name}${this.size}&uri=http%3A%2F%2Finews.ifeng.com%2F53939506%2Fnews.shtml%3Fch%3Difengweb_2014%23imgnum%3D1&ref=http%3A%2F%2Finews.ifeng.com%2F53939506%2Fnews.shtml%3Fch%3Difengweb_2014%23imgnum%3D1&uid=1508323155475_rfg951400&sid=81A5F57EE82DA9925C9EE026297DC363user69404601&time=1512632458194&ci=%2Fwap%2Fhuandengtu%2F&pt=photo`, "", "callback", (data) => {
+                  });
+                  var jsonpNode = document.getElementById('jsonpid');
+                  console.log(jsonpNode)
+                  document.body.removeChild(jsonpNode);
+
+
+                  this.totalNum[this.game.listSelect].push(this.size)
+                  this.size ++ 
+                      
+              }
+             // if(in_array(newStop,this.arrays)){
+
+             // }
+             
+          }
+         
       },
       handleScroll(){
-          let node = document.getElementsByClassName('innerBox')
-          for(var i = 0; i < node.length; i++){
-                
-                if((i+1)%5 == 0 && i!=0) this.onSendExposure(node[i],i)
-                          
-          }
+          //let node = document.getElementsByClassName('innerBox');
+          this.onSendExposure() 
       }
   }
 }
@@ -417,28 +464,39 @@ export default {
 .hello{ position: relative;left: 0;top:.78rem;z-index: 100;}
 .update{margin: -.24rem 0;}
 .update .tips{margin-top: 0}
-.innerBox{ width: 93%;margin:0 auto; padding: .24rem 0; border-bottom: 1px solid #f4f4f4;}
+.innerBox{ width:6.9rem;margin:0 auto; padding: .24rem 0; border-bottom: 1px solid #f4f4f4;}
 .innerBox:after{ content: "";display: block;clear: both;}
 .pic_text .textBox,.video_text .textBox{ float:left; width: 65%;}
-.pic_text .textBox h1,.video_text .textBox h1{ margin-bottom: .14rem; font-size: 0.36rem; color: #1a1a1a; letter-spacing: 0; line-height: 0.42rem;}
+.pic_text .textBox h1,.video_text .textBox h1{ margin-bottom: .14rem; font-size: 0.36rem; color: #1a1a1a; letter-spacing: 0; line-height: 0.48rem;}
 .pic_text .textBox span,.video_text .textBox span{ font-size: 0.22rem; color: #999999; line-height: 0.4rem;margin-right: 0.1rem;}
+
+/*角标*/
+.innerBox .textBox span.yaowen,.video_text .descBox span.yaowen{margin-right: 0.1rem;width:.6rem;height:.26rem;background:url(http://p3.ifengimg.com/29b92e35b2b20708/2017/50/yaowen.png) no-repeat;background-size:cover;display:inline-block;vertical-align:middle;}
+.innerBox .textBox span.dujia,.video_text .textBox span.dujia{margin-right: 0.1rem;width:.52rem;height:.26rem;background:url(http://p0.ifengimg.com/29b92e35b2b20708/2017/50/dujia.png) no-repeat;background-size:.51rem .25rem;display:inline-block;vertical-align:middle;}
+.innerBox .textBox span.yuanchuang,.video_text .textBox span.yuanchuang{margin-right: 0.1rem;width:.52rem;height:.26rem;background:url(http://p0.ifengimg.com/29b92e35b2b20708/2017/50/yuanchuang.png) no-repeat;background-size:.51rem .25rem;display:inline-block;vertical-align:middle;}
+.innerBox .textBox span.zhuanti,.video_text .textBox span.zhuanti{margin-right: 0.1rem;width:.52rem;height:.26rem;background:url(http://p0.ifengimg.com/29b92e35b2b20708/2017/50/zhuanti.png) no-repeat;background-size:.51rem .25rem;display:inline-block;vertical-align:middle;}
+.innerBox .textBox span.zhiding,.video_text .textBox span.zhiding{margin-right: 0.1rem;width:.52rem;height:.26rem;background:url(http://p0.ifengimg.com/29b92e35b2b20708/2017/50/zhiding.png) no-repeat;background-size:.51rem .25rem;display:inline-block;vertical-align:middle;}
+
+
 .pic_text .textBox span:nth-last-child(1),.video_text .textBox span:nth-last-child(1){margin-right: 0;}
 .pic_text .one h1,.video_text .one h1{ line-height: .8rem;}
 .pic_text .imgBox,.video_text .imgBox{ position: relative; float:right; width: 32.6%;background: #e3e3e3; height: 1.54rem; overflow: hidden;}
 .pic_text .imgBox img,.video_text .imgBox img{width: 100%; height: 100%;}
 .video_text .v-btn{ position:absolute;width:0.5rem;height:0.5rem;background:url(../assets/videoIco.png) no-repeat;top:0.35rem;left:50%;margin-left:-0.25rem;background-size:cover}
 .video_text .v-time{ position: absolute; right: 0;bottom: 0; background: rgba(0,0,0,0.6); font-size: 0.12rem;color: #FFFFFF;line-height: 0.14rem; padding: 0.12rem 0.1rem 0.1rem;}
-.itemsT .textBox h1,.videoList .textBox h1,.livingList .textBox h1{ width: 100%; line-height: .4rem; font-size: .36rem; overflow: hidden; color: #1a1a1a;}
+.itemsT .textBox h1,.videoList .textBox h1,.livingList .textBox h1{ width: 100%; line-height: .48rem; font-size: .36rem; overflow: hidden; color: #1a1a1a;}
 .itemsT .descBox span,.videoList .descBox span,.livingList .descBox span{ font-size: 0.22rem; color: #999999; line-height: 0.4rem;margin-right: 0.1rem;}
 .itemsT .imgBox,.videoList .imgBox{ display: flex; justify-content: space-between}
-.itemsT .imgBox img{ float: left; margin: .24rem 0;width: 32.6%; height: 1.54rem; overflow: hidden;}
+.itemsT .imgBox img{ float: left; margin: .16rem 0;width: 32.6%; height: 1.54rem; overflow: hidden;}
 .itemsT .imgBox img:nth-last-child(1){margin-right: 0;}
-.videoList .imgBox{ position: relative; width: 100%; margin: .25rem 0;}
-.videoList img{ width: 100%; height: 100%;}
-.videoList .v-btn{ position:absolute;width:1.11rem;height:1.11rem;background:url(../assets/videoIco.png) no-repeat;top:1.4rem;left:50%;margin-left:-.555rem;background-size:cover}
-.videoList .v-time{ position: absolute; right: 0;bottom: 0; background: rgba(0,0,0,0.6); font-size: 0.24rem;color: #FFFFFF;width:.9rem;height:.46rem;line-height:.47rem;text-align:center;}
+.videoList .imgBox{ position: relative; width: 100%; margin: .16rem 0; height: 3.92rem; background: #e3e3e3;}
+.AutoHeight .imgBox{ height: auto!important;}
 
-.livingList .imgBox{ position: relative; width: 100%; height: 2.1rem; margin: .25rem 0;}
+.videoList img{ width: 100%; height: 100%; object-fit: cover;}
+.videoList .v-btn{ position:absolute;width:1.11rem;height:1.11rem;background:url(../assets/videoIco.png) no-repeat;top:50%;left:50%;margin-left:-.555rem;background-size:1.11rem 1.1rem;margin-top:-.555rem;}
+.videoList .v-time{ position: absolute; right: 0;bottom: 0; background: rgba(0,0,0,0.6); font-size: 0.26rem;color: #FFFFFF;width:.8rem;height:.34rem;line-height:.34rem;text-align:center;}
+
+.livingList .imgBox{ position: relative; width: 100%; height: 2.1rem; margin: .16rem 0;}
 .livingList img{ width: 100%;height: 100%;}
 .livingList .l-tip{ position: absolute; right: 2.5%; top: 0.2rem; width: .76rem; height: .32rem; background: url(../assets/livingIco.png) no-repeat center/100% 100%;}
 .livingList .playing{color: #F54343 !important;}
